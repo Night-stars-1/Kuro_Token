@@ -6,7 +6,6 @@ import android.content.Context
 import android.widget.Toast
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import java.lang.reflect.Proxy
@@ -16,21 +15,23 @@ class MainHook : IXposedHookLoadPackage {
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         // 过滤不必要的应用
         if (lpparam.packageName != "com.kurogame.kjq") return
-        XposedHelpers.findAndHookMethod(
-            "com.sagittarius.v6.StubApplication",
-            lpparam.classLoader,
-            "onCreate",
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    super.afterHookedMethod(param)
-                    hook(lpparam)
-                }
-            })
-    }
-
-    fun test() {
-        XposedBridge.log("[库街区] 测试")
+        val classLoader = lpparam.classLoader
+        try {
+            classLoader.loadClass("com.kurogame.kjq.profile.ui.activity.AccountInfoActivity") // 用于抛出异常，判断是否加固
+            hook(lpparam)
+        } catch (e: ClassNotFoundException) {
+            XposedHelpers.findAndHookMethod(
+                "com.sagittarius.v6.StubApplication",
+                classLoader,
+                "onCreate",
+                object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        super.afterHookedMethod(param)
+                        hook(lpparam)
+                    }
+                })
+        }
     }
 
     private fun hook(lpparam: XC_LoadPackage.LoadPackageParam) {
@@ -84,5 +85,6 @@ class MainHook : IXposedHookLoadPackage {
                     super.afterHookedMethod(param)
                 }
             })
+
     }
 }

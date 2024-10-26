@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.srap.getkjqtokrn"
+    namespace = "com.srap.getkjqtoken"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.srap.getkjqtokrn"
+        applicationId = "com.srap.getkjqtoken"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
